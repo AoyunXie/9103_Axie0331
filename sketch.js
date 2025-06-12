@@ -13,7 +13,7 @@ function setup() {
 function draw() {
   scale(scaleFactor);
 
-  mouseMoved(); 
+  //mouseMoved(); 
 
   let time = millis() * 0.001;
 
@@ -25,7 +25,6 @@ function draw() {
   mouseXFromCenter = xVertex0 - width / 2;
 
   maxAmplitude = abs(baseY - height / 2) * (0.8 + 0.2 * sin(time * 1.5)); 
-
 
   background(0); 
   push();
@@ -278,6 +277,7 @@ function drawTrapezoidLines(x1, x2, x3, x4, y, h, spacing = 3, alpha = 255) {
   }
 }
 
+//Group code
 //function drawLinGroup(x, y, len, count, spacing, weight, baseAlpha = 255) {
  // strokeWeight(weight);
  // for (let i = 0; i < count; i++) {
