@@ -263,7 +263,7 @@ function drawTrapezoidLines(x1, x2, x3, x4, y, h, spacing = 3, alpha = 255) {
       strokeWeight(w);
 
       beginShape();
-      for (let j = 0; j <= 1; j += 0.02) {  // 把线段分解为很多小点
+      for (let j = 0; j <= 1; j += 0.02) {  
         let xLerp = lerp(xi1, xi2, j);
         let xVertexOff = (height / (1 + pow(yi - height / 2, 4) / 8e6)) * (mouseXFromCenter / 400);
         let xVertex = xVertex0 - xVertexOff;
