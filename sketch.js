@@ -17,17 +17,17 @@ function draw() {
 
   let time = millis() * 0.001;
 
-  // 鼠标控制基础位置，sin() 增加动态浮动
+  // sin() add movements
   const baseX = constrain(mouseX, 0, width);
   const baseY = constrain(mouseY, 0, height);
 
-  xVertex0 = baseX + sin(time * 0.8) * 50;  // 水平方向波动 + 鼠标控制中心
+  xVertex0 = baseX + sin(time * 0.8) * 50;  
   mouseXFromCenter = xVertex0 - width / 2;
 
-  maxAmplitude = abs(baseY - height / 2) * (0.8 + 0.2 * sin(time * 1.5)); // 垂直方向振幅带动画
+  maxAmplitude = abs(baseY - height / 2) * (0.8 + 0.2 * sin(time * 1.5)); 
 
 
-  background(247, 241, 225); 
+  background(0); 
   push();
 
   // Move the centre
@@ -214,39 +214,67 @@ function draw() {
 }
 
 function drawLinGroup(x, y, len, count, spacing, weight, alpha) {
-  stroke(0, alpha);
-  strokeWeight(weight);
   noFill();
 
   for (let i = 0; i < count; i++) {
     let yBase = y + i * spacing;
 
-    beginShape();
-    for (let j = 0; j <= len; j += 1) {
-      let xPos = x + j;
+    for (let glow = 5; glow >= 0; glow--) {
+      let w = weight + glow * 0.1;  
+      let a = map(glow, 5, 0, 5, alpha); 
+      let col = (glow === 0)
+        ? color(255, 240, 180, 200)    
+        : color(255, 220, 100, a);      
 
-      // 仿照 Kaplan：高阶函数控制振幅衰减
-      let xVertexOff = (height / (1 + pow(yBase - height / 2, 4) / 8e6 )) * (mouseXFromCenter / 400);
-      let xVertex = xVertex0 - xVertexOff;
+      stroke(col);
+      strokeWeight(w);
 
-      let y1Smooth = maxAmplitude / (1 + pow(xPos - xVertex, 4) / 16e6);
-      let noiseVal = getAmplitudeVariance(xPos, yBase);
-      let yOffset = yBase + y1Smooth * noiseVal * (mouseY - height / 2) / height;
-
-      curveVertex(xPos, yOffset);
+      beginShape();
+      for (let j = 0; j <= len; j += 1) {
+        let xPos = x + j;
+        let xVertexOff = (height / (1 + pow(yBase - height / 2, 4) / 8e6 )) * (mouseXFromCenter / 400);
+        let xVertex = xVertex0 - xVertexOff;
+        let y1Smooth = maxAmplitude / (1 + pow(xPos - xVertex, 4) / 16e6);
+        let noiseVal = getAmplitudeVariance(xPos, yBase);
+        let yOffset = yBase + y1Smooth * noiseVal * (mouseY - height / 2) / height;
+        curveVertex(xPos, yOffset);
+      }
+      endShape();
     }
-    endShape();
   }
 }
 
 function drawTrapezoidLines(x1, x2, x3, x4, y, h, spacing = 3, alpha = 255) {
-  stroke(0, alpha);
-  strokeWeight(1);
+  noFill();
+
   for (let i = 0; i < h; i++) {
     let yi = y + i * spacing;
     let xi1 = lerp(x1, x3, i / h);
     let xi2 = lerp(x2, x4, i / h);
-    line(xi1, yi, xi2, yi);
+
+    for (let glow = 4; glow >= 0; glow--) {
+      let w = 0.5 + glow * 0.2;
+      let a = map(glow, 4, 0, 5, alpha);
+      let col = (glow === 0)
+      ? color(255, 255, 255, 230)        
+      : color(255, 255, 255, a);         
+
+      stroke(col);
+      strokeWeight(w);
+
+      beginShape();
+      for (let j = 0; j <= 1; j += 0.02) {  // 把线段分解为很多小点
+        let xLerp = lerp(xi1, xi2, j);
+        let xVertexOff = (height / (1 + pow(yi - height / 2, 4) / 8e6)) * (mouseXFromCenter / 400);
+        let xVertex = xVertex0 - xVertexOff;
+        let y1Smooth = maxAmplitude / (1 + pow(xLerp - xVertex, 4) / 16e6);
+        let noiseVal = getAmplitudeVariance(xLerp, yi);
+        let yOffset = yi + y1Smooth * noiseVal * (mouseY - height / 2) / height;
+
+        curveVertex(xLerp, yOffset);
+      }
+      endShape();
+    }
   }
 }
 
@@ -293,10 +321,10 @@ function mouseMoved() {
 }
 
 function reset(baseSpeed) {
-  if (abs(xVertex0 - 400) > 1) {
+ if (abs(xVertex0 - 400) > 1) {
     xVertex0 += (400 - xVertex0) / baseSpeed;
-  }
-  if (abs(maxAmplitude - defaultAmplitude) > 0.1) {
+ }
+ if (abs(maxAmplitude - defaultAmplitude) > 0.1) {
     maxAmplitude += (defaultAmplitude - maxAmplitude) / baseSpeed;
-  }
+ }
 }
